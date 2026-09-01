@@ -2,7 +2,7 @@
 ## Title: LFG TankAlert
 ## Notes: Flashes the screen, plays a sound and pops up Invite/Decline buttons when a tank applies to your Premade Group (M+/raid) listing. Optional ignore rule and Raider.IO score/best-run info.
 ## Author: sl.netthandel
-## Version: 1.4.2
+## Version: 1.5.0
 ## SavedVariables: TankAlertDB
 ## IconTexture: Interface\Icons\Ability_Warrior_DefensiveStance
 

@@ -23,6 +23,7 @@ local DEFAULTS = {
     chatAnnounce = true,
     popupEnabled = true,
     showRaiderIO = true, -- shows Raider.IO score/best-run info in the popup when that addon is installed
+    requireInvitePermission = true, -- suppress the whole alert if you currently can't invite (see CanManageListing)
 
     -- A tank applicant is ignored (no flash/sound/popup/chat) if EITHER
     -- threshold is set (> 0) and they fail it. Leaving both at 0 disables
@@ -583,6 +584,15 @@ local function IsTankIgnored(ilvl, rating)
     return failsIlvl or failsRating
 end
 
+-- Only the group leader or a raid assistant can actually invite/decline
+-- applicants for a posted listing (a plain raid member can't, even though
+-- they may still see the applicant data) -- solo (not in any group yet) is
+-- the one case where you ARE the de facto leader of your own future group.
+local function CanManageListing()
+    if not IsInGroup() then return true end
+    return UnitIsGroupLeader("player") or UnitIsGroupAssistant("player")
+end
+
 --------------------------------------------------------------------------
 -- Popup (Invite / Decline / Dismiss)
 --------------------------------------------------------------------------
@@ -769,7 +779,11 @@ local function Announce(info)
 end
 
 local function RefreshApplicants()
-    if not C_LFGList.HasActiveEntryInfo() then
+    -- No active listing, or you currently can't do anything about applicants
+    -- even if there are some (not raid leader/assist) -- either way, nothing
+    -- to show.
+    local canManage = not db.requireInvitePermission or CanManageListing()
+    if not C_LFGList.HasActiveEntryInfo() or not canManage then
         wipe(pendingTanks)
         wipe(notifiedIDs)
         popupManuallyHidden = false
@@ -848,6 +862,7 @@ eventFrame:RegisterEvent("ADDON_LOADED")
 eventFrame:RegisterEvent("LFG_LIST_APPLICANT_LIST_UPDATED")
 eventFrame:RegisterEvent("LFG_LIST_APPLICANT_UPDATED")
 eventFrame:RegisterEvent("LFG_LIST_ACTIVE_ENTRY_UPDATE")
+eventFrame:RegisterEvent("GROUP_ROSTER_UPDATE") -- catches leader/assist changes mid-session
 
 -- Wrapping every event-driven scan in pcall means a bug can never again fail
 -- completely silently: if something breaks, you'll see a red chat line
@@ -890,7 +905,8 @@ eventFrame:SetScript("OnEvent", function(_, event, arg1)
         popupManuallyHidden = false
         SafeRefreshApplicants()
     elseif event == "LFG_LIST_APPLICANT_LIST_UPDATED"
-        or event == "LFG_LIST_APPLICANT_UPDATED" then
+        or event == "LFG_LIST_APPLICANT_UPDATED"
+        or event == "GROUP_ROSTER_UPDATE" then
         SafeRefreshApplicants()
     end
 end)
@@ -931,6 +947,11 @@ local function OnSlash(msg)
         for _ in pairs(pendingTanks) do count = count + 1 end
         print(("|cffffd100LFG TankAlert|r active listing: %s | pending tank applicants: %d"):format(
             hasEntry and "|cff33ff99yes|r" or "|cffff3333no|r", count))
+        if db.requireInvitePermission then
+            local canManage = CanManageListing()
+            print(("|cffffd100LFG TankAlert|r can invite/decline right now: %s"):format(
+                canManage and "|cff33ff99yes|r" or "|cffff3333no (not raid leader/assist)|r"))
+        end
     elseif cmd == "debug" then
         local ok, err = pcall(function()
             print(("|cffffd100LFG TankAlert debug|r active listing: %s"):format(tostring(C_LFGList.HasActiveEntryInfo())))

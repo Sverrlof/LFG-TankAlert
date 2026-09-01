@@ -227,6 +227,11 @@ local function BuildAlertsPanel(panel)
             db.showRaiderIO = v
             if ns.UpdatePopup then ns.UpdatePopup() end
         end)
+    y = y - 30
+
+    CreateCheckbox(panel, "Only alert when I can invite (raid leader/assist)", x, y,
+        function() return db.requireInvitePermission end,
+        function(v) db.requireInvitePermission = v end)
     y = y - 46
 
     local testBtn = ns.CreateFlatButton(panel, "Test Alert", 140, 26)

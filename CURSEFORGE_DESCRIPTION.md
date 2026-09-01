@@ -1,7 +1,7 @@
 Never miss a tank again. **LFG TankAlert** watches your posted Premade Group
-listing in the background and reacts the instant someone applies — flash,
-sound, and a one-click Invite/Decline popup — so you can alt-tab out or go
-AFK instead of babysitting the Group Finder window.
+listing in the background and reacts the instant someone applies: a screen
+flash, a sound, and a one-click Invite/Decline popup. Alt-tab out or go AFK
+instead of babysitting the Group Finder window.
 
 ## Features
 
@@ -47,5 +47,5 @@ Group Finder window fully closed.
 
 ---
 
-Feedback and bug reports welcome — `/ta debug` output is the fastest way to
+Feedback and bug reports welcome. `/ta debug` output is the fastest way to
 get an issue fixed if something doesn't work on your setup.

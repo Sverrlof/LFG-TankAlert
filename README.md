@@ -37,7 +37,7 @@ in-game and tell me the number so I can fix the `## Interface:` line exactly.
    popup. Hit **Invite** right from the popup, or **Decline**, or **Dismiss**
    to just clear the popup without acting.
 
-### Settings window — `/ta options` (or `/ta config`)
+### Settings window (`/ta options` or `/ta config`)
 
 **Alerts tab**
 - Enable/disable the screen flash, and pick its color (click the swatch)
@@ -45,7 +45,9 @@ in-game and tell me the number so I can fix the `## Interface:` line exactly.
 - Alert sound: a dropdown with Raid Warning, Ready Check, 3 alarm clocks, or
   None — plus a **Preview** button to hear the selected one on demand
 - How many times the sound repeats, and the interval between repeats
-- Toggle chat announcements, the Invite/Decline popup, and Raider.IO info
+- Toggle chat announcements, the Invite/Decline popup, Raider.IO info, and
+  whether alerts require you to currently be able to invite (raid
+  leader/assist)
 - **Test Alert** button — fires a fake alert so you can preview your setup
 
 **Ignore Rules tab**
@@ -79,7 +81,7 @@ The popup can show four extra pieces of info per applicant: current M+
 score, previous-season score, and their best key overall and for the
 specific dungeon you're recruiting for — each shown as dungeon + level +
 chest rating (e.g. `++18 Mechagon`), the usual community shorthand.
-**None of this comes from Blizzard** — the LFG API only ever gives you an applicant's current-season
+None of this comes from Blizzard — the LFG API only ever gives you an applicant's current-season
 overall score (which the addon already showed before this feature).
 Per-dungeon history and previous-season data for *other players* simply
 isn't sent to your client under any circumstance; the only way to get it is
@@ -107,15 +109,15 @@ What that means in practice:
 - This hooks into the **Premade Groups / Group Finder** applicant system
   (`C_LFGList`) — M+ has no automatic matchmaking queue, so "a tank queues"
   means "a tank applies to the group you posted."
-- **LFG TankAlert cannot actually invite or decline anyone without you clicking
-  a button.** `C_LFGList.InviteApplicant`/`DeclineApplicant` are protected
+- LFG TankAlert cannot actually invite or decline anyone without you clicking
+  a button. `C_LFGList.InviteApplicant`/`DeclineApplicant` are protected
   functions — Blizzard blocks addons from calling them automatically (this
   is a deliberate anti-automation restriction, confirmed by testing: it
   throws `ADDON_ACTION_BLOCKED` if attempted from an event handler). The
   Invite/Decline popup buttons work because they're real clicks — that's the
   only way this addon can take that action for you. This is also why the
   ignore rule only *suppresses the alert*; it can't auto-decline anyone.
-- **Mythic+ score** comes straight from the applicant's profile as Blizzard's
+- Mythic+ score comes straight from the applicant's profile as Blizzard's
   group finder itself sees it. A brand-new alt or an off-spec with no
   calculated score this season may read as `0` — an ignore rule based on
   score alone won't incorrectly hide someone if you leave that field at `0`
@@ -127,6 +129,21 @@ What that means in practice:
   persist across sessions and characters.
 
 ## Changelog
+
+**1.5.0**
+- Fixed: raid members without leader or assist rank were getting the full
+  alert (flash/sound/popup) for applicants they had no ability to actually
+  invite or decline. In a raid, only the leader and assistants can manage
+  the group's Premade Groups listing — everyone else could still see the
+  applicant data apparently, just not act on it.
+- New toggle in Alerts -> Notifications: **"Only alert when I can invite
+  (raid leader/assist)"**, on by default. Solo / not-yet-grouped is treated
+  as "yes, you can invite" (you're the de facto leader of your own future
+  group); a plain raid member with no assist is treated as "no." Also
+  reflected in `/ta status`. Turn it off if you want alerts anyway, e.g. to
+  flag a good applicant to whoever's actually leading.
+- The addon now also reacts immediately to leader/assist changes mid-raid
+  (listens for `GROUP_ROSTER_UPDATE`), not just to new applicant events.
 
 **1.4.2**
 - Renamed the display name to **LFG TankAlert** — the `## Title` shown in

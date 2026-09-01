@@ -1,0 +1,4 @@
+package-as: TankAlert
+ignore:
+  - README.md
+  - CURSEFORGE_DESCRIPTION.md
