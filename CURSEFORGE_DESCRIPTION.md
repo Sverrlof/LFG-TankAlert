@@ -1,7 +1,7 @@
 Never miss a tank again. **LFG TankAlert** watches your posted Premade Group
 listing in the background and reacts the instant someone applies: a screen
 flash, a sound, and a one-click Invite/Decline popup. Alt-tab out or go AFK
-instead of babysitting the Group Finder window.
+instead of babysitting the Group Finder window.  
 
 ## Features
 
